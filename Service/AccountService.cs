@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Contracts;
+using Entities.Exceptions;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -25,7 +26,7 @@ namespace Service
             var account = _repository.GetByAccountNumber(accountNumber);
             if (account == null)
             {
-                throw new Exception("Account not found.");
+                throw new AccountNotFoundException(accountNumber);
             }
 
             return account.Balance;
@@ -36,13 +37,13 @@ namespace Service
             var account = _repository.GetByAccountNumber(accountNumber);
             if (account == null)
             {
-                throw new Exception("Account not found.");
+                throw new AccountNotFoundException(accountNumber);
             }
 
 
-            var operationsDto =  _repository.GetRechargeOperations(account.Id)
+            var operationsEntity =  _repository.GetRechargeOperations(account.Id)
                 .Where(ro => ro.Date.Month == DateTime.Now.Month);
-            var operationsToReturn = _mapper.Map<IEnumerable<RechargeOperationDto>>(operationsDto);
+            var operationsToReturn = _mapper.Map<IEnumerable<RechargeOperationDto>>(operationsEntity);
             return operationsToReturn;
         }
 
@@ -51,17 +52,17 @@ namespace Service
             var account = _repository.GetByAccountNumber(accountNumber);
             if (account == null)
             {
-                throw new Exception("Account not found.");
+                throw new AccountNotFoundException(accountNumber);
             }
 
             decimal newBalance = account.Balance + amount;
             if (account.IsIdentified == false && newBalance > 10000)
             {
-                throw new Exception("Exceeded maximum balance for unidentified accounts.");
+                throw new ExceededMaxException();
             }
             else if (account.IsIdentified == true && newBalance > 100000)
             {
-                throw new Exception("Exceeded maximum balance for identified accounts.");
+                throw new ExceedMinException();
             }
 
             account.Balance = newBalance;

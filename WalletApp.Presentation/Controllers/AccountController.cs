@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 using Shared;
+using Microsoft.AspNetCore.Http;
 
 namespace WalletApp.Presentation.Controllers
 {
-    [Route("[controller]")]
     [ApiController]
-    [ServiceFilter(typeof(HMACAuthorizationAttribute))]
+    [Route("api/[controller]")]
+    [ServiceFilter(typeof(AuthenticationFilter))]
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
@@ -16,37 +17,24 @@ namespace WalletApp.Presentation.Controllers
         public AccountController(IAccountService accountService) => _accountService = accountService;
 
         [HttpPost("exists")]
-        public IActionResult CheckAccountExists([FromHeader] HeaderParams request, string accountNumber)
+        public IActionResult CheckAccountExists([FromBody] CheckAccountDto request, [FromHeader(Name = "Custom-Params")] HeaderParams headerParams)
         {
-
-            if (string.IsNullOrEmpty(request.XUserId) || string.IsNullOrEmpty(request.XDigest))
-            {
-                return BadRequest("Invalid authentication headers.");
-            }
-
-            if (string.IsNullOrEmpty(accountNumber))
+            if (string.IsNullOrEmpty(request.AccountNumber))
             {
                 return BadRequest("Invalid account number.");
             }
 
-            bool exists = _accountService.AccountExists(accountNumber);
+            bool exists = _accountService.AccountExists(request.AccountNumber);
             return Ok(exists);
         }
 
         [HttpPost("replenish")]
-        public IActionResult ReplenishAccount([FromHeader] HeaderParams request,
-            [FromBody] ReplenishDto replenishDto)
+        public IActionResult ReplenishAccount([FromHeader(Name = "Custom-Params")] HeaderParams headerParams, 
+            [FromBody] ReplenishDto request)
         {
-
-            if (string.IsNullOrEmpty(request.XUserId) || string.IsNullOrEmpty(request.XDigest))
-            {
-                return BadRequest("Invalid authentication headers.");
-            }
-
-
             try
             {
-                bool success = _accountService.ReplenishAccount(replenishDto.AccountNumber, replenishDto.Amount);
+                bool success = _accountService.ReplenishAccount(request.AccountNumber, request.Amount);
                 if (success)
                 {
                     return Ok("Account replenished successfully.");
@@ -61,36 +49,28 @@ namespace WalletApp.Presentation.Controllers
         }
 
         [HttpPost("recharge-operations")]
-        public IActionResult RechargeOperationsForMonth([FromHeader] HeaderParams request,
-            string accountNumber)
+        public IActionResult RechargeOperationsForMonth([FromHeader(Name = "Custom-Params")] HeaderParams headerParams,
+            [FromBody]RechargeOperationsForMonthDto request)
         {
-            if (string.IsNullOrEmpty(request.XUserId) || string.IsNullOrEmpty(request.XDigest))
-            {
-                return BadRequest("Invalid authentication headers.");
-            }
-
-            if (string.IsNullOrWhiteSpace(accountNumber))
+            if (string.IsNullOrWhiteSpace(request.accountNumber))
             {
                 return BadRequest("Invalid account number.");
             }
 
-            var result = _accountService.GetRechargeOperationsForMonth(accountNumber);
+            var result = _accountService.GetRechargeOperationsForMonth(request.accountNumber);
             return Ok(result);
         }
 
-        [HttpPost("balance/{accountNumber}")]
-        public IActionResult GetAccountBalance([FromHeader] HeaderParams request, string accountNumber)
+        [HttpPost("balance")]
+        public IActionResult GetAccountBalance([FromHeader(Name = "Custom-Params")] HeaderParams headerParams, 
+            [FromBody] GetBalanceDto request)
         {
-            if (string.IsNullOrEmpty(request.XUserId) || string.IsNullOrEmpty(request.XDigest))
-            {
-                return BadRequest("Invalid authentication headers.");
-            }
-            if (string.IsNullOrWhiteSpace(accountNumber))
+            if (string.IsNullOrWhiteSpace(request.accountNumber))
             {
                 return BadRequest("Invalid account number.");
             }
 
-            decimal balance = _accountService.GetAccountBalance(accountNumber);
+            decimal balance = _accountService.GetAccountBalance(request.accountNumber);
             return Ok(balance);
         }
     }

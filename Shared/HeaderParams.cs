@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Text.Json.Serialization;
 
 namespace Shared
 {
     public class HeaderParams
     {
-        [FromHeader(Name = "X-UserId")]
+        [JsonPropertyName("X-UserId")]
         public string? XUserId { get; set; }
-        [FromHeader(Name = "X-digest")]
+
+        [JsonPropertyName("X-Digest")]
         public string? XDigest { get; set; }
     }
 }

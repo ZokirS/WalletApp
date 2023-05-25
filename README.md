@@ -1,4 +1,5 @@
 # WalletApp
+#RU
 Задача:
 
 Внедрите Rest API для финансового учреждения, где он предоставляет своим партнёрам услуги электронного кошелька. У него есть два типа учетных записей электронного кошелька: идентифицированные и неидентифицированные.
@@ -14,8 +15,8 @@ API методы сервиса:
 3. Получить общее количество и суммы операций пополнения за текущий месяц.
 4. Получить баланс электронного кошелька.
 
-Во время разработки используйте git и Github и делайте значимые коммиты. Результаты задачи должны быть размещены в вашей учетной записи Github, отправьте нам только ссылку. Мы не принимаем результаты задач в .zip / .rar и т. д.
 
+#EN
 Task:
 
 Implement Rest API for a financial institution where it provides e-wallet services to its partners. It has two types of e-wallet accounts: identified and unidentified.
@@ -31,4 +32,3 @@ API service methods:
 3. Get the total number and amount of recharge operations for the current month.
 4. Get the e-wallet balance.
 
-During development, use git and Github and make meaningful commits. Task results should be posted to your Github account, send us the link only. We do not accept task results in .zip / .rar, etc.
